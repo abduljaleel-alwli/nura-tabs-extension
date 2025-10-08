@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Nura Panel</title>
+    <link rel="stylesheet" href="sidepanel.css" />
+  </head>
+  <body>
+    <!-- Splash Screen -->
+    <div id="splash">
+      <div class="logo-wrap">
+        <img id="brandLogo" src="../../assets/icons/logo.png" alt="Nura Logo" />
+        <div class="pulse"></div>
+      </div>
+      <div class="loading-dot"></div>
+      <p class="loading-text">جارٍ التحميل…</p>
+    </div>
+
+    <!-- Iframe Content -->
+    <main id="app" hidden>
+      <iframe
+        id="mainFrame"
+        src="https://nura.shamlltech.com/"
+        title="Nura App"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </main>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
