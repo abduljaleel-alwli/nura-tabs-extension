@@ -175,7 +175,6 @@ body.app-ready #splash {
 }
 
 /* Draggable settings floating button (Messenger-like) */
-/* Draggable settings floating button (Messenger-like) */
 .settings-btn {
   position: fixed;
   left: 16px;           /* سيتم تجاوزها عند استرجاع الحالة */

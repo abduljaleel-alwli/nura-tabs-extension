@@ -1,5 +1,5 @@
 // Splash timing
-const SPLASH_MIN_MS = 900;
+const SPLASH_MIN_MS = 1200;
 const SPLASH_MAX_MS = 2000;
 
 const logo = document.getElementById("brandLogo");
