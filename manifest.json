@@ -23,5 +23,6 @@
   },
   "action": {
     "default_title": "Open Nura Panel"
-  }
+  },
+  "options_page": "src/settings/settings.html"
 }
