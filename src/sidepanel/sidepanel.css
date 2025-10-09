@@ -177,7 +177,7 @@ body.app-ready #splash {
 /* Draggable settings floating button (Messenger-like) */
 .settings-btn {
   position: fixed;
-  left: 16px;           /* سيتم تجاوزها عند استرجاع الحالة */
+  left: 16px; 
   bottom: 10px;
   width: 40px;
   height: 40px;
@@ -192,27 +192,22 @@ body.app-ready #splash {
   display: grid;
   place-items: center;
   transition: filter .2s ease, opacity .25s ease, transform .25s ease;
-  touch-action: none;   /* ضروري للسحب باللمس */
+  touch-action: none;
   user-select: none;
 }
 .settings-btn:hover { filter: brightness(1.08); }
 .settings-btn:active { cursor: grabbing; }
 .settings-btn.dragging { transition: none; filter: brightness(1.05); }
 
-/* حالة السكون (اختفاء جزئي) */
 .settings-btn.sleep {
   opacity: .35;
   transform: scale(.94);
 }
 
-/* عندما يكون الزر “ملتصقًا” باليسار ويعمل peek */
 .settings-btn.peek-left  { left: -28px !important; right: auto !important; }
 .settings-btn.peek-right { left: auto !important; right: -28px !important; }
 
-/* تأكد من بقاءه فوق أي IFrame محتوى */
 #mainFrame{ position: relative; z-index: 1; }
-
-
 
 /* Animations */
 @keyframes pop {

@@ -11,12 +11,12 @@ const toast = document.getElementById("toast");
 
 const start = performance.now();
 
-// Toast helper
-function showToast(msg = "لا يوجد اتصال إنترنت حالياً", ms = 1600) {
+// Toast notification helper
+function showToast(msg = "No internet connection", ms = 1600) {
   if (!toast) return;
   toast.textContent = msg;
   toast.hidden = false;
-  void toast.offsetWidth; // restart transition
+  void toast.offsetWidth; // restart CSS transition
   toast.classList.add("show");
   setTimeout(() => {
     toast.classList.remove("show");
@@ -24,17 +24,18 @@ function showToast(msg = "لا يوجد اتصال إنترنت حالياً", m
   }, ms);
 }
 
-// Force toggle
+// Toggle UI between online/offline
 function showOffline() {
   frame.setAttribute("hidden", "");
   offlineDiv.removeAttribute("hidden");
 }
+
 function showFrame() {
   offlineDiv.setAttribute("hidden", "");
   frame.removeAttribute("hidden");
 }
 
-// Show offline only if truly offline
+// Detect and update based on connection state
 function handleConnectionChange() {
   if (navigator.onLine === false) {
     showOffline();
@@ -43,20 +44,20 @@ function handleConnectionChange() {
   }
 }
 
-// Reveal app after splash
+// Reveal app after splash delay
 function revealApp() {
   const elapsed = performance.now() - start;
   const wait = Math.max(0, SPLASH_MIN_MS - elapsed);
   setTimeout(() => {
     document.body.classList.add("app-ready");
     app.hidden = false;
-    
-    handleConnectionChange(); // initial check
+
+    handleConnectionChange(); // Initial connection check
     setupDraggableFAB();
   }, wait);
 }
 
-// Init splash with fallback timeout
+// Initialize splash screen with fallback timeout
 function initSplash() {
   let done = false;
   const finish = () => {
@@ -73,59 +74,59 @@ function initSplash() {
   }
 }
 
-// Main
+// Entry point
 document.addEventListener("DOMContentLoaded", () => {
   initSplash();
 
   window.addEventListener("online", () => {
     handleConnectionChange();
     frame.src = frame.src; // reload iframe
-    showToast("تم استعادة الاتصال");
+    showToast("Connection restored");
   });
 
   window.addEventListener("offline", () => {
     handleConnectionChange();
-    showToast("انقطع الاتصال");
+    showToast("Connection lost");
   });
 
   retryBtn?.addEventListener("click", () => {
     if (navigator.onLine) {
       frame.src = frame.src;
       handleConnectionChange();
-      showToast("جاري التحديث…");
+      showToast("Refreshing...");
     } else {
       retryBtn.classList.remove("shake");
       void retryBtn.offsetWidth;
       retryBtn.classList.add("shake");
-      showToast("أنت غير متصل بالإنترنت");
+      showToast("You are offline");
     }
   });
 });
 
+
 // ===== Settings FAB: draggable + inertia + edge snap + auto-hide =====
 const FAB_KEY = "settingsFabPos"; // {left:number, top:number, side:"left"|"right"}
-const AUTO_HIDE_MS = 3000; // خمول قبل الاختفاء
-const EDGE_MARGIN = 12; // هامش داخلي عند الظهور
-const CLICK_THRESHOLD = 6; // px
-const INERTIA_DECAY = 0.92; // احتكاك القصور
-const MAX_SPEED = 2.2; // حد السرعة (px/ms)
-const PEEK_OFFSET = 28; // مقدار peek خارج الحافة
+const AUTO_HIDE_MS = 3000;
+const EDGE_MARGIN = 12;
+const CLICK_THRESHOLD = 6;
+const INERTIA_DECAY = 0.92;
+const MAX_SPEED = 2.2;
+const PEEK_OFFSET = 28;
 
 function setupDraggableFAB() {
   const btn = document.getElementById("openSettingsBtn");
   if (!btn) return;
-  btn.setAttribute("aria-label", "الإعدادات");
+  btn.setAttribute("aria-label", "Settings");
 
-  // فلاغ يبيّن إن كان لدينا موقع محفوظ
+  // Indicates whether a saved position exists
   let hasSavedPos = false;
 
-  // حمّل الموقع المحفوظ (إن وجد) بعد ما يصير الـ app ظاهر
+  // Load saved position (if exists)
   const applySavedPosition = () => {
     chrome.storage.sync.get(FAB_KEY, (data) => {
       const pos = data[FAB_KEY];
       if (pos && Number.isFinite(pos.left) && Number.isFinite(pos.top)) {
         hasSavedPos = true;
-        // استخدم top/left فقط عند وجود موقع محفوظ
         btn.style.left = `${pos.left}px`;
         btn.style.top = `${pos.top}px`;
         btn.style.right = "auto";
@@ -133,7 +134,6 @@ function setupDraggableFAB() {
         btn.dataset.side = pos.side || "left";
       } else {
         hasSavedPos = false;
-        // اترك الافتراضي من CSS: bottom:16px; left:16px
         btn.style.removeProperty("top");
         btn.style.removeProperty("right");
         btn.style.left = "16px";
@@ -144,7 +144,7 @@ function setupDraggableFAB() {
     });
   };
 
-  // نؤجل التثبيت فريم واحد لضمان اكتمال layout
+  // Wait one frame to ensure layout is ready
   requestAnimationFrame(applySavedPosition);
 
   let dragging = false;
@@ -154,7 +154,7 @@ function setupDraggableFAB() {
   let origLeft = 0,
     origTop = 0;
 
-  // لتقدير السرعة (للـ inertia)
+  // For inertia (velocity tracking)
   let lastT = 0,
     lastX = 0,
     lastY = 0;
@@ -196,8 +196,8 @@ function setupDraggableFAB() {
     clearTimeout(hideTimer);
   }
 
+  // Partially hide the button (peek state)
   function autoHide() {
-    // أخفِ الزر جزئيًا حسب الجهة الحالية (peek)
     if (dragging) return;
     const side = btn.dataset.side === "right" ? "right" : "left";
     btn.classList.add("sleep");
@@ -214,6 +214,7 @@ function setupDraggableFAB() {
     btn.classList.remove("sleep", "peek-left", "peek-right");
   }
 
+  // Snap button to nearest screen edge and save position
   function snapToNearestEdge() {
     const rect = btn.getBoundingClientRect();
     const toRight = rect.left + rect.width / 2 > vw() / 2;
@@ -223,7 +224,6 @@ function setupDraggableFAB() {
     btn.style.right = "auto";
     btn.dataset.side = toRight ? "right" : "left";
 
-    // حفظ الحالة
     chrome.storage.sync.set({
       [FAB_KEY]: {
         left,
@@ -233,6 +233,7 @@ function setupDraggableFAB() {
     });
   }
 
+  // Keep button inside viewport bounds
   function keepInsideViewport() {
     const rect = btn.getBoundingClientRect();
     const left = clamp(rect.left, EDGE_MARGIN, vw() - bw() - EDGE_MARGIN);
@@ -243,18 +244,17 @@ function setupDraggableFAB() {
     btn.style.bottom = "auto";
   }
 
+  // Apply inertia (smooth sliding after drag)
   function startInertia() {
     clearInertia();
     const start = performance.now();
     function step(now) {
-      const dt = Math.max(1, now - (lastT || start)); // ms
+      const dt = Math.max(1, now - (lastT || start));
       lastT = now;
 
-      // Apply friction
       vx *= INERTIA_DECAY;
       vy *= INERTIA_DECAY;
 
-      // Stop if speed is negligible
       if (Math.abs(vx) < 0.01 && Math.abs(vy) < 0.01) {
         clearInertia();
         snapToNearestEdge();
@@ -266,13 +266,12 @@ function setupDraggableFAB() {
       let nx = rect.left + vx * dt;
       let ny = rect.top + vy * dt;
 
-      // Clamp inside viewport
       const minX = EDGE_MARGIN,
         maxX = vw() - bw() - EDGE_MARGIN;
       const minY = EDGE_MARGIN,
         maxY = vh() - bh() - EDGE_MARGIN;
 
-      // Bounce lightly if hits edge
+      // Bounce effect at edges
       if (nx < minX) {
         nx = minX;
         vx = -vx * 0.4;
@@ -324,17 +323,13 @@ function setupDraggableFAB() {
 
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    if (
-      !moved &&
-      (Math.abs(dx) > CLICK_THRESHOLD || Math.abs(dy) > CLICK_THRESHOLD)
-    ) {
+    if (!moved && (Math.abs(dx) > CLICK_THRESHOLD || Math.abs(dy) > CLICK_THRESHOLD)) {
       moved = true;
     }
 
     let newLeft = origLeft + dx;
     let newTop = origTop + dy;
 
-    // حدود العرض
     const minX = EDGE_MARGIN,
       maxX = vw() - bw() - EDGE_MARGIN;
     const minY = EDGE_MARGIN,
@@ -348,12 +343,10 @@ function setupDraggableFAB() {
     btn.style.right = "auto";
     btn.style.bottom = "auto";
 
-    // سرعة آنية
     const now = performance.now();
     const dt = Math.max(1, now - lastT);
     vx = (e.clientX - lastX) / dt;
     vy = (e.clientY - lastY) / dt;
-    // تحديد أقصى سرعة
     vx = clamp(vx, -MAX_SPEED, MAX_SPEED);
     vy = clamp(vy, -MAX_SPEED, MAX_SPEED);
     lastT = now;
@@ -367,17 +360,16 @@ function setupDraggableFAB() {
     btn.classList.remove("dragging");
 
     if (!moved) {
-      // نقرة: افتح الإعدادات
+      // Click: open settings page
       chrome.runtime.openOptionsPage();
       scheduleAutoHide();
       return;
     }
 
-    // ابدأ القصور ثم سناب للحافة واحفظ المكان
     startInertia();
   }
 
-  // إظهار عند الاقتراب من الحافة (لما يكون مخفي جزئياً)
+  // Show button when user moves near screen edges
   function onGlobalPointerMove(e) {
     if (dragging) return;
     const nearEdge = e.clientX < 48 || e.clientX > vw() - 48;
@@ -388,10 +380,9 @@ function setupDraggableFAB() {
   btn.addEventListener("pointerdown", onPointerDown);
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", onPointerUp);
-
   window.addEventListener("pointermove", onGlobalPointerMove);
 
-  // حافظ على بقاءه مرئيًا بعد تغيير حجم اللوحة
+  // Keep FAB visible and positioned correctly on resize
   window.addEventListener("resize", () => {
     revealFromPeek();
     keepInsideViewport();

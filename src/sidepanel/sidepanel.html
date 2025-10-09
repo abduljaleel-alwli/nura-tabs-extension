@@ -8,8 +8,9 @@
   </head>
   <body>
     <!-- Toast -->
-    <div id="toast" role="status" aria-live="polite" hidden>لا يوجد اتصال إنترنت
-      حالياً</div>
+    <div id="toast" role="status" aria-live="polite" hidden>
+      No internet connection
+    </div>
 
     <!-- Splash -->
     <div id="splash">
@@ -18,7 +19,7 @@
         <div class="pulse"></div>
       </div>
       <div class="loading-dot"></div>
-      <p class="loading-text">جارٍ التحميل…</p>
+      <p class="loading-text">Loading…</p>
     </div>
 
     <!-- Main App -->
@@ -33,7 +34,7 @@
 
       <!-- Settings Button -->
       <button id="openSettingsBtn" class="settings-btn"
-        title="الإعدادات">
+        title="Settings">
         <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none"
           xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g
             id="SVGRepo_bgCarrier" stroke-width="0"></g><g
@@ -62,9 +63,9 @@
                 stroke-linecap="round" />
             </svg>
           </div>
-          <h2>أنت غير متصل</h2>
-          <p>تحقق من الشبكة ثم أعد المحاولة.</p>
-          <button id="retryBtn" class="btn">إعادة المحاولة</button>
+          <h2>You are offline</h2>
+          <p>Please check your network connection and try again.</p>
+          <button id="retryBtn" class="btn">Retry</button>
         </div>
       </section>
     </main>
