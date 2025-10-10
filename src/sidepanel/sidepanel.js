@@ -389,3 +389,16 @@ function setupDraggableFAB() {
     scheduleAutoHide();
   });
 }
+
+// ===== Clipboard Copy Handling =====
+window.addEventListener('message', async (ev) => {
+  const { type, payload } = ev.data || {};
+  if (type === 'NURA_COPY_REQUEST' && typeof payload === 'string') {
+    try {
+      await navigator.clipboard.writeText(payload);
+      ev.source?.postMessage({ type: 'NURA_COPY_DONE' }, ev.origin || '*');
+    } catch (e) {
+      console.warn('Parent copy failed:', e);
+    }
+  }
+});
